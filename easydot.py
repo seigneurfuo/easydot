@@ -3,15 +3,41 @@ import shutil
 import sys
 from pathlib import Path
 
+class ErrorMessages:
+    DST_FILE_NOT_EXISTS = "Destination inexistante"
+    OK = "Ok"
 
-def browse_tree(path, home_directory):
+
+def get_softwares(path):
+    return sorted([folder for folder in os.listdir(path) if
+            os.path.isdir(os.path.join(path, folder)) and not folder.startswith(".")])
+
+
+def get_symbolics_links(path):
+    ret = []
+
+    softwares = get_softwares(path)
+    for software in softwares:
+        software_path = os.path.join(path, software)
+
+        for link in browse_tree(software_path):
+            ret.append(link)
+
+    return ret
+
+
+def browse_tree(path, home_directory=Path().home()):
     for root, directories, filenames in os.walk(path):
         for filename in filenames:
             src = os.path.abspath(os.path.join(root, filename))
-            software_name = path + os.path.join(root, filename)
             dst = os.path.join(home_directory, src.removeprefix(os.path.abspath(path) + "/"))
+            
+            if not os.path.islink(dst):
+                msg = ErrorMessages.DST_FILE_NOT_EXISTS
+            else:
+                msg = ErrorMessages.OK
 
-            yield {"src": src, "software_name": software_name, "dst": dst}
+            yield {"src": src, "dst": dst, "msg": msg, "software_name": None}
 
 
 def create_symlinks(files, dry_run):
@@ -37,19 +63,19 @@ def create_symlinks(files, dry_run):
         else:
             msg = "[FILE EXISTS]"
 
-        print("   ", msg, filename["software_name"], "->", filename["dst"])
+        print("   ", msg, filename["src"], "->", filename["dst"])
 
 
 def main():
     CURRENT_FOLDER = os.getcwd()
-    softwares = [x for x in os.listdir(CURRENT_FOLDER) if os.path.isdir(os.path.join(CURRENT_FOLDER, x))]
+    softwares = get_softwares(CURRENT_FOLDER)
 
     folder = sys.argv[1].removesuffix("/")
     dry_run = False
 
     if folder in softwares and os.path.isdir(folder):
         print(folder)
-        files = browse_tree(folder, Path().home())
+        files = browse_tree(folder)
         create_symlinks(files, dry_run)
 
 
