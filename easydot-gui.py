@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from pprint import pprint
 
-from easydot import browse_tree, get_softwares, get_symbolics_links, ErrorMessages
+from easydot import get_symbolics_links, Messages
 
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
@@ -26,11 +26,13 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         loadUi(os.path.join(os.path.dirname(__file__), "mainwindow.ui"), self)
 
-        self.setWindowTitle("easydot GUI - 0.0.1")
+        self.setWindowTitle("easydot GUI - 0.1.1")
 
     def init_events(self):
         self.pushButton.clicked.connect(self.when_remove_button_clicked)
         self.pushButton_2.clicked.connect(self.when_update_button_clicked)
+        self.pushButton_3.clicked.connect(self.when_open_source_folder_button_clicked)
+        self.pushButton_4.clicked.connect(self.when_open_destination_folder_button_clicked)
 
     def fill_data(self):
         homepath = Path.home()
@@ -63,14 +65,14 @@ class MainWindow(QMainWindow):
 
             # Col 3
             item = QTableWidgetItem(msg)
+            item.setToolTip(msg)
 
-            if msg is ErrorMessages.OK:
+            if msg is Messages.OK:
                 item.setBackground(QColor(0, 128, 0))
             else:
                 item.setBackground(QColor(128, 0, 0))
 
             self.tableWidget.setItem(row_index, 2, item)
-            
 
         self.tableWidget.resizeColumnsToContents()
 
@@ -79,6 +81,12 @@ class MainWindow(QMainWindow):
 
     def when_update_button_clicked(self):
         self.fill_data()
+
+    def when_open_source_folder_button_clicked(self):
+        pass
+
+    def when_open_destination_folder_button_clicked(self):
+        pass
 
 if __name__ == "__main__":
     application = Application(sys.argv)

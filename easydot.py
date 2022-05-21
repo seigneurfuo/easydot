@@ -1,16 +1,17 @@
 import os
-import shutil
 import sys
 from pathlib import Path
 
-class ErrorMessages:
-    DST_FILE_NOT_EXISTS = "Destination inexistante"
+
+class Messages:
     OK = "Ok"
+    DST_FILE_NOT_EXISTS = "Destination inexistante"
+    DST_EXIST_BUT_NO_LINK = "Destination existe mais n'est pas un lien"
 
 
 def get_softwares(path):
     return sorted([folder for folder in os.listdir(path) if
-            os.path.isdir(os.path.join(path, folder)) and not folder.startswith(".")])
+                   os.path.isdir(os.path.join(path, folder)) and not folder.startswith(".")])
 
 
 def get_symbolics_links(path):
@@ -31,11 +32,14 @@ def browse_tree(path, home_directory=Path().home()):
         for filename in filenames:
             src = os.path.abspath(os.path.join(root, filename))
             dst = os.path.join(home_directory, src.removeprefix(os.path.abspath(path) + "/"))
-            
-            if not os.path.islink(dst):
-                msg = ErrorMessages.DST_FILE_NOT_EXISTS
+
+            if os.path.isfile(dst) and not os.path.islink(dst):
+                msg = Messages.DST_EXIST_BUT_NO_LINK
+
+            elif not os.path.isfile(dst) and not os.path.islink(dst):
+                msg = Messages.DST_FILE_NOT_EXISTS
             else:
-                msg = ErrorMessages.OK
+                msg = Messages.OK
 
             yield {"src": src, "dst": dst, "msg": msg, "software_name": None}
 
@@ -67,16 +71,17 @@ def create_symlinks(files, dry_run):
 
 
 def main():
-    CURRENT_FOLDER = os.getcwd()
-    softwares = get_softwares(CURRENT_FOLDER)
+    current_folder = os.getcwd()
+    softwares = get_softwares(current_folder)
 
-    folder = sys.argv[1].removesuffix("/")
-    dry_run = False
+    if len(sys.argv) == 2:
+        folder = sys.argv[1].removesuffix("/")
+        dry_run = False
 
-    if folder in softwares and os.path.isdir(folder):
-        print(folder)
-        files = browse_tree(folder)
-        create_symlinks(files, dry_run)
+        if folder in softwares and os.path.isdir(folder):
+            print(folder)
+            files = browse_tree(folder)
+            create_symlinks(files, dry_run)
 
 
 if __name__ == "__main__":

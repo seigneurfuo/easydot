@@ -55,12 +55,22 @@
     <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButton_3">
         <property name="text">
-         <string>Supprimer</string>
+         <string>Ouvrir dossier source</string>
         </property>
         <property name="icon">
-         <iconset theme="remove"/>
+         <iconset theme="folder"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="text">
+         <string>Ouvrir dossier destination</string>
+        </property>
+        <property name="icon">
+         <iconset theme="folder"/>
         </property>
        </widget>
       </item>
@@ -71,6 +81,16 @@
         </property>
         <property name="icon">
          <iconset theme="reload"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Supprimer</string>
+        </property>
+        <property name="icon">
+         <iconset theme="remove"/>
         </property>
        </widget>
       </item>
