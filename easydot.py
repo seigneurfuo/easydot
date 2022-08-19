@@ -1,6 +1,6 @@
-import argparse
-
 #!/bin/env python3
+
+import argparse
 import os
 import sys
 from pathlib import Path
@@ -9,7 +9,8 @@ from pathlib import Path
 class Messages:
     OK = "Ok"
     DST_FILE_NOT_EXISTS = "Destination inexistante"
-    DST_EXIST_BUT_NO_LINK = "Destination existe mais n'est pas un lien. "
+    DST_EXIST_BUT_NO_LINK = "Destination existe mais n'est pas un lien."
+    SRC_FOLDER_NOT_FOUND = "Le dossier \"{}\" n'existe pas"
 
 
 def get_softwares(path):
@@ -82,13 +83,14 @@ def create_symlinks(files, dry_run):
 
 
 def main():
-    current_folder = os.getcwd()
-    current_folder = os.path.join(Path.home(), "Dotfiles")
-
-
     argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument("--list", required=False)
+    argument_parser.add_argument("--list", required=False, action="store_true")
+    argument_parser.add_argument("--dry", required=False, action="store_true")
+    argument_parser.add_argument("--name", type=str, help="Software name")
     args = argument_parser.parse_args()
+
+    #current_folder = os.getcwd()
+    current_folder = os.path.join(Path.home(), "Dotfiles")
 
     softwares = get_softwares(current_folder)
 
@@ -96,15 +98,21 @@ def main():
         for software in softwares:
             print("    - {}".format(software))
 
+    if args.name:
+        if args.dry:
+            dry_run = True
+        else:
+            dry_run = False
 
-    # if len(sys.argv) == 2:
-    #     folder = sys.argv[1].removesuffix("/")
-    #     dry_run = False
-    #
-    #     if folder in softwares and os.path.isdir(folder):
-    #         print(folder)
-    #         files = browse_tree(folder)
-    #         create_symlinks(files, dry_run)
+        folderpath = os.path.join(current_folder, args.name)
+
+        if args.name in softwares and os.path.isdir(folderpath):
+             files = browse_tree(folderpath)
+             create_symlinks(files, dry_run)
+        else:
+
+            msg = Messages.SRC_FOLDER_NOT_FOUND.format(folderpath)
+            print(msg)
 
 
 if __name__ == "__main__":
