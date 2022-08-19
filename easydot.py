@@ -9,12 +9,17 @@ from pathlib import Path
 class Messages:
     OK = "Ok"
     DST_FILE_NOT_EXISTS = "Destination inexistante"
-    DST_EXIST_BUT_NO_LINK = "Destination existe mais n'est pas un lien"
+    DST_EXIST_BUT_NO_LINK = "Destination existe mais n'est pas un lien. "
 
 
 def get_softwares(path):
-    return sorted([folder for folder in os.listdir(path) if
-                   os.path.isdir(os.path.join(path, folder)) and not folder.startswith(".")])
+    ret_list = []
+    excludes = ("__pycache__")
+    for folder in os.listdir(path):
+        if os.path.isdir(os.path.join(path, folder)) and not folder.startswith(".") and folder not in excludes:
+            ret_list.append(folder)
+
+    return sorted(ret_list)
 
 
 def get_symbolics_links(path):
