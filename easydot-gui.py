@@ -2,12 +2,11 @@
 import sys
 import os
 from pathlib import Path
-from pprint import pprint
 
 from easydot import get_symbolics_links, Messages
 
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt
 
@@ -26,7 +25,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         loadUi(os.path.join(os.path.dirname(__file__), "mainwindow.ui"), self)
 
-        self.setWindowTitle("easydot GUI - 0.1.1")
+        self.setWindowTitle("easydot GUI - 0.1.2")
 
     def init_events(self):
         self.pushButton.clicked.connect(self.when_remove_button_clicked)
@@ -42,32 +41,29 @@ class MainWindow(QMainWindow):
         self.tableWidget.setRowCount(len(links))
 
         for row_index, link in enumerate(links):
-            src_path = link['src']
-            dst_path = link["dst"]
-            msg = link["msg"]
-
-            print(msg)
-
-            src_short_path = src_path.removeprefix(os.path.abspath(path) + "/")
-            dst_short_path = dst_path.removeprefix(os.path.abspath(homepath) + "/")
-
             #  Col 1
-            item = QTableWidgetItem(src_short_path)
-            item.setToolTip(src_path)
+            item = QTableWidgetItem(link["src_short"])
+            item.setToolTip(link["src_short"])
             item.setData(Qt.UserRole, link)
             self.tableWidget.setItem(row_index, 0, item)
 
             # Col 2
-            item = QTableWidgetItem(dst_short_path)
-            item.setToolTip(dst_path)
+            item = QTableWidgetItem(link["src_short"])
+            item.setToolTip(link["dst_short"])
             item.setData(Qt.UserRole, link)
             self.tableWidget.setItem(row_index, 1, item)
 
-            # Col 3
-            item = QTableWidgetItem(msg)
-            item.setToolTip(msg)
+            # Col 2
+            item = QTableWidgetItem(link["src_short"])
+            item.setToolTip(link["src_short"])
+            item.setData(Qt.UserRole, link)
+            self.tableWidget.setItem(row_index, 2, item)
 
-            if msg is Messages.OK:
+            # Col 4
+            item = QTableWidgetItem(link["msg"])
+            item.setToolTip(link["msg"])
+
+            if link["msg"] is Messages.OK:
                 item.setBackground(QColor(0, 128, 0))
             else:
                 item.setBackground(QColor(128, 0, 0))
@@ -75,6 +71,8 @@ class MainWindow(QMainWindow):
             self.tableWidget.setItem(row_index, 2, item)
 
         self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.horizontalHeader().setSectionResizeMode(self.tableWidget.columnCount() - 1,
+                                                                 QHeaderView.ResizeToContents)
 
     def when_remove_button_clicked(self):
         pass
