@@ -1,3 +1,6 @@
+import argparse
+
+#!/bin/env python3
 import os
 import sys
 from pathlib import Path
@@ -33,6 +36,9 @@ def browse_tree(path, home_directory=Path().home()):
             src = os.path.abspath(os.path.join(root, filename))
             dst = os.path.join(home_directory, src.removeprefix(os.path.abspath(path) + "/"))
 
+            src_short = src.removeprefix(os.path.abspath(path) + "/")
+            dst_short = dst.removeprefix(os.path.abspath(home_directory) + "/")
+
             if os.path.isfile(dst) and not os.path.islink(dst):
                 msg = Messages.DST_EXIST_BUT_NO_LINK
 
@@ -41,7 +47,7 @@ def browse_tree(path, home_directory=Path().home()):
             else:
                 msg = Messages.OK
 
-            yield {"src": src, "dst": dst, "msg": msg, "software_name": None}
+            yield {"src": src, "dst": dst, "src_short": src_short, "dst_short": dst_short, "msg": msg, "software_name": None}
 
 
 def create_symlinks(files, dry_run):
@@ -61,27 +67,39 @@ def create_symlinks(files, dry_run):
             msg = "[+SYMBLINK]"
 
         elif os.path.islink(filename["dst"]):
-            msg = "[SYMBLINK EXISTS]"
+            msg = "[ERROR: SYMBLINK EXISTS]"
             # Demander le remplacement ?
 
         else:
-            msg = "[FILE EXISTS]"
+            msg = "[ERROR: FILE EXISTS]"
 
         print("   ", msg, filename["src"], "->", filename["dst"])
 
 
 def main():
     current_folder = os.getcwd()
+    current_folder = os.path.join(Path.home(), "Dotfiles")
+
+
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("--list", required=False)
+    args = argument_parser.parse_args()
+
     softwares = get_softwares(current_folder)
 
-    if len(sys.argv) == 2:
-        folder = sys.argv[1].removesuffix("/")
-        dry_run = False
+    if args.list:
+        for software in softwares:
+            print("    - {}".format(software))
 
-        if folder in softwares and os.path.isdir(folder):
-            print(folder)
-            files = browse_tree(folder)
-            create_symlinks(files, dry_run)
+
+    # if len(sys.argv) == 2:
+    #     folder = sys.argv[1].removesuffix("/")
+    #     dry_run = False
+    #
+    #     if folder in softwares and os.path.isdir(folder):
+    #         print(folder)
+    #         files = browse_tree(folder)
+    #         create_symlinks(files, dry_run)
 
 
 if __name__ == "__main__":
