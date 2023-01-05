@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.fill_data()
 
     def init_ui(self):
-        loadUi(os.path.join(os.path.dirname(__file__), "mainwindow.ui"), self)
+        loadUi(os.path.realpath(os.path.join(os.path.dirname(__file__), "mainwindow.ui")), self)
 
         self.setWindowTitle("easydot GUI - 0.1.2")
 
