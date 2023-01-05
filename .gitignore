@@ -1,3 +1,7 @@
 .idea/
 __pycache__/
 workspace.code-workspace
+packaging/PKGBUILD/easydot-gui/
+packaging/PKGBUILD/pkg
+packaging/PKGBUILD/src
+packaging/PKGBUILD/*.pkg.*
