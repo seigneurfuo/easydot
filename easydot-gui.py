@@ -5,10 +5,11 @@ from pathlib import Path
 
 from easydot import get_symbolics_links, Messages
 
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QDesktopServices
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView
 from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QUrl
+
 
 class Application(QApplication):
     def __init__(self, args):
@@ -41,34 +42,30 @@ class MainWindow(QMainWindow):
         self.tableWidget.setRowCount(len(links))
 
         for row_index, link in enumerate(links):
-            #  Col 1
-            item = QTableWidgetItem(link["src_short"])
-            item.setToolTip(link["src_short"])
-            item.setData(Qt.UserRole, link)
-            self.tableWidget.setItem(row_index, 0, item)
-
-            # Col 2
-            item = QTableWidgetItem(link["src_short"])
-            item.setToolTip(link["dst_short"])
-            item.setData(Qt.UserRole, link)
-            self.tableWidget.setItem(row_index, 1, item)
-
-            # Col 2
-            item = QTableWidgetItem(link["src_short"])
-            item.setToolTip(link["src_short"])
-            item.setData(Qt.UserRole, link)
-            self.tableWidget.setItem(row_index, 2, item)
-
-            # Col 4
+            # Col 1
             item = QTableWidgetItem(link["msg"])
             item.setToolTip(link["msg"])
+            item.setData(Qt.UserRole, link)
 
             if link["msg"] is Messages.OK:
                 item.setBackground(QColor(0, 128, 0))
             else:
                 item.setBackground(QColor(128, 0, 0))
 
+            self.tableWidget.setItem(row_index, 0, item)
+
+            #  Col 2
+            item = QTableWidgetItem(link["src_short"])
+            item.setToolTip(link["src_short"])
+            #item.setData(Qt.UserRole, link)
+            self.tableWidget.setItem(row_index, 1, item)
+
+            # Col 3
+            item = QTableWidgetItem(link["src_short"])
+            item.setToolTip(link["dst_short"])
+            #item.setData(Qt.UserRole, link)
             self.tableWidget.setItem(row_index, 2, item)
+
 
         self.tableWidget.resizeColumnsToContents()
         self.tableWidget.horizontalHeader().setSectionResizeMode(self.tableWidget.columnCount() - 1,
@@ -80,14 +77,21 @@ class MainWindow(QMainWindow):
     def when_update_button_clicked(self):
         self.fill_data()
 
+    def open_folder(self, attribute):
+        selected_item = self.tableWidget.item(self.tableWidget.currentRow(), 0)
+        if selected_item:
+            filepath = selected_item.data(Qt.UserRole)[attribute]
+            QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(filepath)))
+
     def when_open_source_folder_button_clicked(self):
-        pass
+        self.open_folder("src")
 
     def when_open_destination_folder_button_clicked(self):
-        pass
+        self.open_folder("dst")
 
 if __name__ == "__main__":
     application = Application(sys.argv)
     mainwindow = MainWindow()
+    mainwindow.move(application.desktop().screen().rect().center() - mainwindow.rect().center())
     mainwindow.show()
     application.exec_()

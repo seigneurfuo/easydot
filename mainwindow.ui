@@ -37,17 +37,17 @@
       </attribute>
       <column>
        <property name="text">
+        <string>Status</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
         <string>Fichier local</string>
        </property>
       </column>
       <column>
        <property name="text">
         <string>Destination</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Status</string>
        </property>
       </column>
      </widget>
@@ -60,7 +60,8 @@
          <string>Ouvrir dossier source</string>
         </property>
         <property name="icon">
-         <iconset theme="folder"/>
+         <iconset theme="folder">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
@@ -70,7 +71,8 @@
          <string>Ouvrir dossier destination</string>
         </property>
         <property name="icon">
-         <iconset theme="folder"/>
+         <iconset theme="folder">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
@@ -80,7 +82,8 @@
          <string>Rafraichir</string>
         </property>
         <property name="icon">
-         <iconset theme="reload"/>
+         <iconset theme="reload">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
@@ -90,7 +93,8 @@
          <string>Supprimer</string>
         </property>
         <property name="icon">
-         <iconset theme="remove"/>
+         <iconset theme="remove">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
