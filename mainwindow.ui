@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>881</width>
+    <height>591</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,12 +42,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Fichier local</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Destination</string>
+        <string>Chemins</string>
        </property>
       </column>
      </widget>
@@ -88,9 +83,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="pushButton_5">
+        <property name="text">
+         <string>Créer le lien symbolique</string>
+        </property>
+        <property name="icon">
+         <iconset theme="add"/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>Supprimer</string>
+         <string>Supprimer le lien symbolique</string>
         </property>
         <property name="icon">
          <iconset theme="remove">
@@ -120,7 +125,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>881</width>
      <height>24</height>
     </rect>
    </property>

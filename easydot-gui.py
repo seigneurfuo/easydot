@@ -6,7 +6,7 @@ from pathlib import Path
 from easydot import get_symbolics_links, Messages
 
 from PyQt5.QtGui import QColor, QDesktopServices
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QLabel
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt, QUrl
 
@@ -29,6 +29,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("easydot GUI - 0.1.2")
 
     def init_events(self):
+        self.pushButton_5.clicked.connect(self.when_create_button_clicked)
         self.pushButton.clicked.connect(self.when_remove_button_clicked)
         self.pushButton_2.clicked.connect(self.when_update_button_clicked)
         self.pushButton_3.clicked.connect(self.when_open_source_folder_button_clicked)
@@ -55,32 +56,54 @@ class MainWindow(QMainWindow):
             self.tableWidget.setItem(row_index, 0, item)
 
             #  Col 2
-            item = QTableWidgetItem(link["src_short"])
-            item.setToolTip(link["src_short"])
-            #item.setData(Qt.UserRole, link)
-            self.tableWidget.setItem(row_index, 1, item)
+            msg = "<b>Source</b>: {}<br><b>Destination</b>: {}".format(link["src"], link["dst"])
+            item = QLabel(msg)
+            item.setToolTip(link["src"])
+            self.tableWidget.setCellWidget(row_index, 1, item)
 
-            # Col 3
-            item = QTableWidgetItem(link["src_short"])
-            item.setToolTip(link["dst_short"])
-            #item.setData(Qt.UserRole, link)
-            self.tableWidget.setItem(row_index, 2, item)
+            # # Col 3
+            # item = QTableWidgetItem(link["dst"])
+            # item.setToolTip(link["dst"])
+            # #item.setData(Qt.UserRole, link)
+            # self.tableWidget.setItem(row_index, 2, item)
 
 
-        self.tableWidget.resizeColumnsToContents()
+        #self.tableWidget = QTableWidget()
         self.tableWidget.horizontalHeader().setSectionResizeMode(self.tableWidget.columnCount() - 1,
                                                                  QHeaderView.ResizeToContents)
 
+        self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.verticalHeader().resizeSections(QHeaderView.ResizeToContents)
+
+    def get_current_row_data(self):
+        selected_item = self.tableWidget.item(self.tableWidget.currentRow(), 0)
+        if selected_item:
+            return selected_item.data(Qt.UserRole)
+        else:
+            return None
+
+    def when_create_button_clicked(self):
+        data = self.get_current_row_data()
+        if data:
+            os.symlink(data["src"], data["dst"])
+
+            self.fill_data()
+
     def when_remove_button_clicked(self):
-        pass
+        data = self.get_current_row_data()
+        if data:
+            dst_filepath = data["dst"]
+            os.remove(dst_filepath)
+
+            self.fill_data()
 
     def when_update_button_clicked(self):
         self.fill_data()
 
     def open_folder(self, attribute):
-        selected_item = self.tableWidget.item(self.tableWidget.currentRow(), 0)
-        if selected_item:
-            filepath = selected_item.data(Qt.UserRole)[attribute]
+        data = self.get_current_row_data()
+        if data:
+            filepath = data[attribute]
             QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(filepath)))
 
     def when_open_source_folder_button_clicked(self):
@@ -90,6 +113,9 @@ class MainWindow(QMainWindow):
         self.open_folder("dst")
 
 if __name__ == "__main__":
+    import cgitb
+    cgitb.enable(format='text')
+
     application = Application(sys.argv)
     mainwindow = MainWindow()
     mainwindow.move(application.desktop().screen().rect().center() - mainwindow.rect().center())
