@@ -41,13 +41,13 @@ def get_symbolics_links(path):
     for software in softwares:
         software_path = os.path.join(path, software)
 
-        for link in browse_tree(software_path):
+        for link in browse_software_files(software_path):
             ret.append(link)
 
     return ret
 
 
-def browse_tree(path, home_directory=Path().home()):
+def browse_software_files(path, home_directory=Path().home()):
     for root, directories, filenames in os.walk(path):
         for filename in filenames:
             src = os.path.abspath(os.path.join(root, filename))
@@ -122,7 +122,7 @@ def main():
         folderpath = os.path.join(current_folder, software_name)
 
         if software_name in softwares and os.path.isdir(folderpath):
-             files = browse_tree(folderpath)
+             files = browse_software_files(folderpath)
              create_symlinks(files, args)
         else:
             msg = Messages.SRC_FOLDER_NOT_FOUND.format(folderpath)

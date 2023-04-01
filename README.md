@@ -16,12 +16,4 @@ easydot.py nom_du_dossier_logiciel
 
 Cette version ne permet pour le moment que de visualiser les liens (valides, corrompus ou inexistants).
 
-![](docs/imgs/2022-05-21-12-47-50.png)
-
-
-
-
-
-## 
-
-## 
+![](docs/imgs/2023-04-01-21-35-21.png)

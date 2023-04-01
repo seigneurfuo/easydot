@@ -1,19 +1,15 @@
 #!/bin/env python3
+import json
 import sys
 import os
 from pathlib import Path
 
-from easydot import get_symbolics_links, Messages
+import easydot
 
 from PyQt5.QtGui import QColor, QDesktopServices
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeWidgetItem, QTreeWidget
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt, QUrl
-
-
-class Application(QApplication):
-    def __init__(self, args):
-        super().__init__(args)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -21,12 +17,13 @@ class MainWindow(QMainWindow):
 
         self.init_ui()
         self.init_events()
+        self.config = self.load_or_create_config_file()
         self.fill_data()
 
     def init_ui(self):
         loadUi(os.path.realpath(os.path.join(os.path.dirname(__file__), "mainwindow.ui")), self)
 
-        self.setWindowTitle("easydot GUI - 0.1.2")
+        self.setWindowTitle("easydot GUI - 0.2.0")
 
     def init_events(self):
         self.pushButton_5.clicked.connect(self.when_create_button_clicked)
@@ -35,56 +32,65 @@ class MainWindow(QMainWindow):
         self.pushButton_3.clicked.connect(self.when_open_source_folder_button_clicked)
         self.pushButton_4.clicked.connect(self.when_open_destination_folder_button_clicked)
 
-    def fill_data(self):
+    def load_or_create_config_file(self):
         homepath = Path.home()
-        path = os.path.join(homepath, "Dotfiles")
-        links = get_symbolics_links(path)
+        config_filepath = os.path.join(homepath, ".easydot.json")
+        if os.path.isfile(config_filepath):
+            with open(config_filepath) as config_file:
+                config = json.load(config_file)
 
-        self.tableWidget.setRowCount(len(links))
+                if not os.path.isdir(config["path"]):
+                    config["path"] = os.path.join(homepath, config["path"])
 
-        for row_index, link in enumerate(links):
-            # Col 1
-            item = QTableWidgetItem(link["msg"])
-            item.setToolTip(link["msg"])
-            item.setData(Qt.UserRole, link)
+            return config
+        else:
+            DEFAULT_CONFIG = {"path": os.path.join(homepath, "Dotfiles")}
+            return DEFAULT_CONFIG
 
-            if link["msg"] is Messages.OK:
-                item.setBackground(QColor(0, 128, 0))
-            else:
-                item.setBackground(QColor(128, 0, 0))
+    def fill_data(self):
+        if not self.treeWidget:
+            self.treeWidget = QTreeWidget()
 
-            self.tableWidget.setItem(row_index, 0, item)
+        self.treeWidget.setColumnCount(1)
 
-            #  Col 2
-            msg = "<b>Source</b>: {}<br><b>Destination</b>: {}".format(link["src"], link["dst"])
-            item = QLabel(msg)
-            item.setToolTip(link["src"])
-            self.tableWidget.setCellWidget(row_index, 1, item)
+        path = self.config["path"]
+        softwares = easydot.get_softwares(path)
 
-            # # Col 3
-            # item = QTableWidgetItem(link["dst"])
-            # item.setToolTip(link["dst"])
-            # #item.setData(Qt.UserRole, link)
-            # self.tableWidget.setItem(row_index, 2, item)
+        for top_level_index, software in enumerate(softwares):
+            software_path = os.path.join(path, software)
 
+            self.treeWidget.insertTopLevelItems(top_level_index, [QTreeWidgetItem(None, [software])])
+            parent_node = self.treeWidget.topLevelItem(top_level_index)
 
-        #self.tableWidget = QTableWidget()
-        self.tableWidget.horizontalHeader().setSectionResizeMode(self.tableWidget.columnCount() - 1,
-                                                                 QHeaderView.ResizeToContents)
+            for link in easydot.browse_software_files(software_path):
+                msg = link["src"] + " -> " + link["dst"]
 
-        self.tableWidget.resizeColumnsToContents()
-        self.tableWidget.verticalHeader().resizeSections(QHeaderView.ResizeToContents)
+                # Elément
+                item = QTreeWidgetItem(None, [msg])
+                item.setData(0, Qt.UserRole, link)
+
+                # Couleur
+                color = QColor(0, 128, 0) if link["msg"] is easydot.Messages.OK else QColor(128, 0, 0)
+                item.setBackground(0, color)
+
+                parent_node.addChild(item)
+
+        # On affiche tout
+        self.treeWidget.expandAll()
 
     def get_current_row_data(self):
-        selected_item = self.tableWidget.item(self.tableWidget.currentRow(), 0)
+        selected_item = self.treeWidget.currentItem()
         if selected_item:
-            return selected_item.data(Qt.UserRole)
+            return selected_item.data(0, Qt.UserRole)
         else:
             return None
 
     def when_create_button_clicked(self):
         data = self.get_current_row_data()
         if data:
+            if os.path.isfile(data["dst"]):
+                os.remove(data["dst"])
+
             os.symlink(data["src"], data["dst"])
 
             self.fill_data()
@@ -92,10 +98,11 @@ class MainWindow(QMainWindow):
     def when_remove_button_clicked(self):
         data = self.get_current_row_data()
         if data:
-            dst_filepath = data["dst"]
-            os.remove(dst_filepath)
+            if os.path.isfile(data["dst"]):
+                dst_filepath = data["dst"]
+                os.remove(dst_filepath)
 
-            self.fill_data()
+                self.fill_data()
 
     def when_update_button_clicked(self):
         self.fill_data()
@@ -116,7 +123,7 @@ if __name__ == "__main__":
     import cgitb
     cgitb.enable(format='text')
 
-    application = Application(sys.argv)
+    application = QApplication(sys.argv)
     mainwindow = MainWindow()
     mainwindow.move(application.desktop().screen().rect().center() - mainwindow.rect().center())
     mainwindow.show()
