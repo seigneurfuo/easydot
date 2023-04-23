@@ -88,7 +88,11 @@ class MainWindow(QMainWindow):
     def when_create_button_clicked(self):
         data = self.get_current_row_data()
         if data:
-            if os.path.isfile(data["dst"]):
+            dst_folder = os.path.dirname(data["dst"])
+            if not os.path.isdir(dst_folder):
+                os.makedirs(dst_folder)
+
+            elif os.path.isfile(data["dst"]):
                 os.remove(data["dst"])
 
             os.symlink(data["src"], data["dst"])
