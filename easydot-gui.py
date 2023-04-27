@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         if not self.treeWidget:
             self.treeWidget = QTreeWidget()
 
-        self.treeWidget.setColumnCount(1)
+        self.treeWidget.clear()
 
         path = self.config["path"]
         softwares = easydot.get_softwares(path)
