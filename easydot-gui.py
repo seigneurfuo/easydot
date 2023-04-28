@@ -15,6 +15,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.expanded_list = False
+
         self.init_ui()
         self.init_events()
         self.config = self.load_or_create_config_file()
@@ -31,6 +33,7 @@ class MainWindow(QMainWindow):
         self.pushButton_2.clicked.connect(self.when_update_button_clicked)
         self.pushButton_3.clicked.connect(self.when_open_source_folder_button_clicked)
         self.pushButton_4.clicked.connect(self.when_open_destination_folder_button_clicked)
+        self.pushButton_7.clicked.connect(self.when_expand_button_clicked)
 
     def load_or_create_config_file(self):
         homepath = Path.home()
@@ -58,11 +61,14 @@ class MainWindow(QMainWindow):
 
         for top_level_index, software in enumerate(softwares):
             software_path = os.path.join(path, software)
+            links = list(easydot.browse_software_files(software_path))
 
-            self.treeWidget.insertTopLevelItems(top_level_index, [QTreeWidgetItem(None, [software])])
+            software_name = "{} [{} élément(s)]".format(software, len(links))
+
+            self.treeWidget.insertTopLevelItems(top_level_index, [QTreeWidgetItem(None, [software_name])])
             parent_node = self.treeWidget.topLevelItem(top_level_index)
 
-            for link in easydot.browse_software_files(software_path):
+            for link in links:
                 msg = link["src"] + " -> " + link["dst"]
 
                 # Elément
@@ -75,8 +81,7 @@ class MainWindow(QMainWindow):
 
                 parent_node.addChild(item)
 
-        # On affiche tout
-        self.treeWidget.expandAll()
+        self.expanded_or_collapse()
 
     def get_current_row_data(self):
         selected_item = self.treeWidget.currentItem()
@@ -110,6 +115,16 @@ class MainWindow(QMainWindow):
 
     def when_update_button_clicked(self):
         self.fill_data()
+
+    def when_expand_button_clicked(self):
+        self.expanded_list = not self.expanded_list
+        self.expanded_or_collapse()
+
+    def expanded_or_collapse(self):
+        if self.expanded_list:
+            self.treeWidget.expandAll()
+        else:
+            self.treeWidget.collapseAll()
 
     def open_folder(self, attribute):
         data = self.get_current_row_data()
