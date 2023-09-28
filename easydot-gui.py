@@ -59,27 +59,29 @@ class MainWindow(QMainWindow):
         path = self.config["path"]
         softwares = easydot.get_softwares(path)
 
-        for top_level_index, software in enumerate(softwares):
+        for software_index, software in enumerate(softwares):
+            activated_links_count = 0
+
             software_path = os.path.join(path, software)
             links = list(easydot.browse_software_files(software_path))
 
-            software_name = "{} [{} élément(s)]".format(software, len(links))
-
-            self.treeWidget.insertTopLevelItems(top_level_index, [QTreeWidgetItem(None, [software_name])])
-            parent_node = self.treeWidget.topLevelItem(top_level_index)
+            self.treeWidget.insertTopLevelItem(software_index, QTreeWidgetItem(None))
+            software_node = self.treeWidget.topLevelItem(software_index)
 
             for link in links:
                 msg = link["src"] + " -> " + link["dst"]
 
-                # Elément
+                color = QColor(0, 128, 0) if link["msg"] is easydot.Messages.OK else QColor(128, 0, 0)
                 item = QTreeWidgetItem(None, [msg])
                 item.setData(0, Qt.ItemDataRole.UserRole, link)
-
-                # Couleur
-                color = QColor(0, 128, 0) if link["msg"] is easydot.Messages.OK else QColor(128, 0, 0)
                 item.setBackground(0, color)
+                software_node.addChild(item)
 
-                parent_node.addChild(item)
+                if link["msg"] is easydot.Messages.OK:
+                    activated_links_count += 1
+
+            software_name = "{} [{}/{} actif]".format(software, activated_links_count, len(links))
+            software_node.setText(0, software_name)
 
         self.expanded_or_collapse()
 
