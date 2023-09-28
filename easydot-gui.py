@@ -6,10 +6,10 @@ from pathlib import Path
 
 import easydot
 
-from PyQt5.QtGui import QColor, QDesktopServices
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTreeWidgetItem, QTreeWidget
-from PyQt5.uic import loadUi
-from PyQt5.QtCore import Qt, QUrl
+from PyQt6.QtGui import QColor, QDesktopServices
+from PyQt6.QtWidgets import QApplication, QMainWindow, QTreeWidgetItem, QTreeWidget
+from PyQt6.uic import loadUi
+from PyQt6.QtCore import Qt, QUrl
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         loadUi(os.path.realpath(os.path.join(os.path.dirname(__file__), "mainwindow.ui")), self)
 
-        self.setWindowTitle("easydot GUI - 0.2.0")
+        self.setWindowTitle("easydot GUI - 0.2.1")
 
     def init_events(self):
         self.pushButton_5.clicked.connect(self.when_create_button_clicked)
@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
 
                 # Elément
                 item = QTreeWidgetItem(None, [msg])
-                item.setData(0, Qt.UserRole, link)
+                item.setData(0, Qt.ItemDataRole.UserRole, link)
 
                 # Couleur
                 color = QColor(0, 128, 0) if link["msg"] is easydot.Messages.OK else QColor(128, 0, 0)
@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
     def get_current_row_data(self):
         selected_item = self.treeWidget.currentItem()
         if selected_item:
-            return selected_item.data(0, Qt.UserRole)
+            return selected_item.data(0, Qt.ItemDataRole.UserRole)
         else:
             return None
 
@@ -144,6 +144,5 @@ if __name__ == "__main__":
 
     application = QApplication(sys.argv)
     mainwindow = MainWindow()
-    mainwindow.move(application.desktop().screen().rect().center() - mainwindow.rect().center())
     mainwindow.show()
-    application.exec_()
+    application.exec()
