@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         loadUi(os.path.realpath(os.path.join(os.path.dirname(__file__), "mainwindow.ui")), self)
 
-        self.setWindowTitle("easydot GUI - 0.2.1")
+        self.setWindowTitle("easydot GUI - 0.2.3")
 
     def init_events(self):
         self.pushButton_5.clicked.connect(self.when_create_button_clicked)
