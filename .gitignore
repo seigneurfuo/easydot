@@ -5,3 +5,6 @@ packaging/PKGBUILD/easydot-gui/
 packaging/PKGBUILD/pkg
 packaging/PKGBUILD/src
 packaging/PKGBUILD/*.pkg.*
+packaging/fedora/noarch/*.rpm
+packaging/fedora/*.src.rpm
+packaging/fedora/*.log
