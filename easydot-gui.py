@@ -141,9 +141,6 @@ class MainWindow(QMainWindow):
         self.open_folder("dst")
 
 if __name__ == "__main__":
-    import cgitb
-    cgitb.enable(format='text')
-
     application = QApplication(sys.argv)
     mainwindow = MainWindow()
     mainwindow.show()
